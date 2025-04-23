@@ -95,34 +95,29 @@ outAcc
 #2unsupervised ###########################
 library(terra)
 landsat5 <- rast('data/rs/centralvalley-2011LT5.tif')
-names(landsat5) <- c('blue','green','red','NIR','SWIR1','SWIR2')
-
-ndvi <- (landsat5[['NIR']] - landsat5[['red']]) / (landsat5[['NIR']] + landsat5[['red']])
-
-
-e <- ext(-121.807, -121.725, 38.004, 38.072)
-
-
-ndvi <- crop(ndvi, e)
-ndvi
-
-nr <- as.data.frame(ndvi, cell=TRUE)
-str(nr)
-
-set.seed(99)
-
-kmncluster <- kmeans(nr[,-1], centers=10, iter.max = 500, nstart = 5, algorithm="Lloyd")
-
-str(kmncluster)
-
-knr <- rast(ndvi, nlyr=1)
+names(landsat5) <- c('blue','green','red','NIR','SWIR1','SWIR2')  
+ndvi <- (landsat5[['NIR']] - landsat5[['red']]) / (landsat5[['NIR']] + landsat5[['red']])   
+e <- ext(-121.807, -121.725, 38.004, 38.072)   
+ndvi <- crop(ndvi, e) 
+ndvi  
+nr <- as.data.frame(ndvi, cell=TRUE) 
+str(nr)  
+set.seed(99) 
+kmncluster <- kmeans(nr[,-1], centers=10, iter.max = 500, nstart = 5, algorithm="Lloyd") 
+str(kmncluster) 
+knr <- rast(ndvi, nlyr=1) 
 knr[nr$cell] <- kmncluster$cluster
-knr
-mycolor <- c("#fef65b","#ff0000", "#daa520","#0000ff","#0000ff","#00ff00","#cbbeb5",
-             "#c3ff5b", "#ff7373", "#00ff00", "#808080")
-dev.new(width = 12, height = 6)  # Open a larger plot window
+knr 
+# Open new plotting window (optional)
+dev.new(width = 12, height = 6)
+
+mycolor <- c("#fef65b","#ff0000", "#daa520","#0000ff",
+             "#0000ff","#00ff00","#cbbeb5", "#c3ff5b", "#ff7373", "#00ff00", "#808080")
+
 par(mfrow = c(1, 2))
+
 plot(ndvi, col = rev(terrain.colors(10)), main = "Landsat-NDVI")
+
 plot(knr, main = 'Unsupervised classification', col = mycolor, type = "classes")
 
 
